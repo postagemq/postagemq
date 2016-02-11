@@ -68,4 +68,6 @@ target/
 venv*
 
 # Sphinx generated documentation
-docs
+docs/_build
+docs/modules.rst
+docs/postagemq.rst
