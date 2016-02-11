@@ -60,3 +60,12 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# JetBrains tools
+.idea
+
+# Virtual environments
+venv*
+
+# Sphinx generated documentation
+docs
