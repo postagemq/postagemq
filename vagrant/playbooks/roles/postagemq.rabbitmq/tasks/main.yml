@@ -1,0 +1,23 @@
+---
+
+- include: repository.yml
+  when: rabbitmq_use_upstream_repository
+  tags: [repository,rabbitmq]
+
+- include: packages.yml
+  tags: [packages,rabbitmq]
+
+- include: config-cluster.yml
+  when: rabbitmq_create_cluster
+
+- include: config.yml
+
+- include: service.yml
+
+- include: cluster.yml
+  when: 'rabbitmq_create_cluster and (ansible_hostname != rabbitmq_cluster_master) and (ansible_fqdn != rabbitmq_cluster_master)'
+
+- include: rabbitmq.yml
+  when: 'not rabbitmq_create_cluster or (ansible_hostname == rabbitmq_cluster_master) or (ansible_fqdn == rabbitmq_cluster_master)'
+
+- meta: flush_handlers

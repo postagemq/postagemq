@@ -1,0 +1,35 @@
+---
+
+rabbitmq_use_upstream_repository: true
+rabbitmq_erlang_cookie: 1qa2ws3ed
+rabbitmq_ulimit_open_files: 1024
+rabbitmq_create_cluster: no
+rabbitmq_cluster_master: localhost
+rabbitmq_use_longname: 'false'
+rabbitmq_vhosts: []
+rabbitmq_ha_enabled: no
+rabbitmq_ha_pattern: '.*'
+rabbitmq_ha_mode: 'all'
+
+rabbitmq_ssl: no
+rabbitmq_ssl_port: 5671
+rabbitmq_ssl_use_snakeoil_cert: yes
+rabbitmq_ssl_ca_cert:
+rabbitmq_ssl_cert:
+rabbitmq_ssl_key:
+
+rabbitmq_plugins:
+  - rabbitmq_management
+
+rabbitmq_users:
+  - user: admin
+    password: admin
+    vhost: /
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+    tags: administrator
+
+rabbitmq_users_removed:
+  - guest
+
