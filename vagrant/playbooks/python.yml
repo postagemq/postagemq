@@ -1,0 +1,16 @@
+---
+- hosts: all
+  tasks:
+    - name: Ensure virtualenv is present
+      become: yes
+      become_method: sudo
+      apt: name=python-virtualenv state=present
+
+    - name: Copy requirements_dev
+      copy: src=files/requirements_dev.txt dest=/tmp/requirements_dev.txt
+
+    - name: Create a virtualenv
+      pip: requirements=/tmp/requirements_dev.txt virtualenv=~/venv virtualenv_python=python2
+
+    - name: Install local postagemq into virtualenv
+      pip: name='/vagrant' virtualenv=~/venv

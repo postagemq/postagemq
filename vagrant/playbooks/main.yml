@@ -1,0 +1,11 @@
+---
+- hosts: all
+
+  pre_tasks:
+    - name: update apt cache if needed
+      apt: update_cache=yes cache_valid_time=3600
+      become: yes
+      become_method: sudo
+
+- include: rabbitmq.yml
+- include: python.yml

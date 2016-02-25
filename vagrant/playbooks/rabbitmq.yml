@@ -1,0 +1,32 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+
+  pre_tasks:
+    - name: "Build hosts file"
+#      lineinfile: dest=/etc/hosts regexp='.*master$' line="{{ hostvars['master'].address }} master" state=present
+#      when: hostvars['master'].address is defined
+
+      lineinfile: dest=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].address }} {{item}}" state=present
+      when: hostvars[item].address is defined
+      with_items: groups['all']
+
+#      lineinfile: dest=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_default_ipv4.address }} {{item}}" state=present
+#      when: hostvars[item].ansible_default_ipv4.address is defined
+#      with_items: groups['all']
+
+  roles:
+    - role: postagemq.rabbitmq
+      rabbitmq_erlang_cookie: 1qa2ws3ed
+      rabbitmq_create_cluster: yes
+      rabbitmq_cluster_master: master
+      rabbitmq_plugins:
+        - rabbitmq_management
+      rabbitmq_users:
+        - user: guest
+          password: guest
+          vhost: /
+          configure_priv: .*
+          read_priv: .*
+          write_priv: .*
