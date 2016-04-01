@@ -7,12 +7,11 @@ import functools
 import getpass
 import sys
 import socket
-import time
 import traceback
 import collections
 import copy
 
-import microthreads
+from postagemq import microthreads
 
 try:
     global_vhost = os.environ['POSTAGE_VHOST']

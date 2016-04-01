@@ -2,11 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
+from setuptools import setup, find_packages
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -30,11 +26,12 @@ setup(
     author="Leonardo Giordani",
     author_email='giordani.leonardo@gmail.com',
     url='https://github.com/postagemq/postagemq',
-    packages=[
-        'postagemq',
-    ],
-    package_dir={'postagemq':
-                 'postagemq'},
+    packages=find_packages(),
+    # packages=[
+    #     'postagemq',
+    # ],
+    # package_dir={'postagemq':
+    #              'postagemq'},
     include_package_data=True,
     install_requires=requirements,
     license="LGPLv3 or later",
@@ -49,7 +46,6 @@ setup(
         "Programming Language :: Python :: 2",
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Topic :: Internet',

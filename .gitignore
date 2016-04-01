@@ -71,3 +71,6 @@ venv*
 docs/_build
 docs/modules.rst
 docs/postagemq.rst
+
+.vagrant
+.python-version
