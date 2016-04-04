@@ -34,7 +34,7 @@ class GenericApplication(messaging.MessageProcessor):
     logging_producer = LoggingProducerStub
 
     def __init__(self, fingerprint, vhost, groups=[]):
-        super(GenericApplicationConsumerMicroThread, self).__init__(
+        super(GenericApplication, self).__init__(
             fingerprint, [], None, vhost)
 
         self.logger = self.logging_producer(self.fingerprint)
