@@ -1,8 +1,7 @@
-import os
-import messaging
+from postagemq import messaging
+
 
 class GenericApplicationExchange(messaging.Exchange):
-
     """The GenericApplication exchange, used to send normal messages."""
 
     name = "generic-application-exchange"
@@ -13,7 +12,6 @@ class GenericApplicationExchange(messaging.Exchange):
 
 
 class LoggingProducerStub(object):
-
     """This is just a stub logger that may be replaced by an actual producer."""
 
     def __init__(self, fingerprint={}, hup=None, vhost=None):
@@ -27,7 +25,6 @@ class LoggingProducerStub(object):
 
 
 class GenericApplication(messaging.MessageProcessor):
-
     # This is the standard exchange the application connects to
     exchange_class = GenericApplicationExchange
 
@@ -64,13 +61,13 @@ class GenericApplication(messaging.MessageProcessor):
         # All application with the same 'name' on the same 'host'
         # share this queue
         self.hid = {'name': "%s@%s" %
-                    (name, host), 'flags': {'auto_delete': True}}
+                            (name, host), 'flags': {'auto_delete': True}}
 
         # The unique queue (Unique queue IDentifier)
         # Only this application owns this queue since the (pid, host)
         # tuple is unique
         self.uid = {'name': "%s@%s" %
-                    (pid, host), 'flags': {'auto_delete': True}}
+                            (pid, host), 'flags': {'auto_delete': True}}
 
         # Applications may belong to one or more groups
         self.groups = groups
@@ -184,14 +181,14 @@ class GenericApplication(messaging.MessageProcessor):
 
     @messaging.MessageHandler('command', 'leave_group')
     def msg_leave_group(self, content):
-        group=content['parameters']['group_name']
-        name=self.fingerprint['name']
+        group = content['parameters']['group_name']
+        name = self.fingerprint['name']
         if group in self.groups:
             self.groups.remove(group)
 
             self.logger.log(
                 "Leaving group {name}#{group}".format(name=name, group=group))
-            
+
             self.consumer.queue_unbind(
                 self.exchange_class,
                 self.uid,
