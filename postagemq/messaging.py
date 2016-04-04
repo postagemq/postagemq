@@ -1,4 +1,5 @@
 from __future__ import print_function
+import six
 
 import os
 import pika
@@ -292,7 +293,7 @@ class ExchangeType(type):
                           }
 
 
-class Exchange(object):
+class Exchange(six.with_metaclass(ExchangeType, object)):
 
     """A generic exchange.
     This objects helps the creation of an exchange and its use among
@@ -302,8 +303,6 @@ class Exchange(object):
 
     This object has to be inherited and customized.
     """
-
-    __metaclass__ = ExchangeType
 
     name = "noname"
     exchange_type = "direct"
@@ -848,7 +847,7 @@ class MessageHandlerType(type):
                 cls._message_handlers[message_key].append((method, body_key))
 
 
-class MessageProcessor(microthreads.MicroThread):
+class MessageProcessor(six.with_metaclass(MessageHandlerType, microthreads.MicroThread)):
 
     """A MessageProcessor is a MicroThread with MessageHandlerType as
     metaclass. This means that it can be used as a microthred in a scheduler
@@ -859,7 +858,6 @@ class MessageProcessor(microthreads.MicroThread):
     """
 
     consumer_class = GenericConsumer
-    __metaclass__ = MessageHandlerType
 
     def __init__(self, fingerprint, eqk, hup, vhost):
         # This is a generic consumer, customize the consumer_class class
