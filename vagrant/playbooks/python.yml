@@ -9,8 +9,20 @@
     - name: Copy requirements_dev
       copy: src=files/requirements_dev.txt dest=/tmp/requirements_dev.txt
 
-    - name: Create a virtualenv
+    - name: Create a virtualenv for Python 2
       pip: requirements=/tmp/requirements_dev.txt virtualenv=~/venv virtualenv_python=python2
 
-    - name: Install local postagemq into virtualenv
+    - name: Create a virtualenv for Python 3
+      pip: requirements=/tmp/requirements_dev.txt virtualenv=~/venv3 virtualenv_python=python3
+
+    - name: Install local postagemq into Python 2 virtualenv
       pip: name='/vagrant' virtualenv=~/venv
+
+    - name: Install package requirements into Python 2 virtualenv
+      pip: requirements='/vagrant/requirements.txt' virtualenv=~/venv
+
+    - name: Install local postagemq into Python 3 virtualenv
+      pip: name='/vagrant' virtualenv=~/venv3
+
+    - name: Install package requirements into Python 3 virtualenv
+      pip: requirements='/vagrant/requirements.txt' virtualenv=~/venv3

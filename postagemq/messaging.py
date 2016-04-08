@@ -30,7 +30,7 @@ except KeyError:
     global_password = 'guest'
 
 if 'POSTAGE_DEBUG_MODE' in os.environ and \
-        os.environ['POSTAGE_DEBUG_MODE'].lower() == 'true':
+                os.environ['POSTAGE_DEBUG_MODE'].lower() == 'true':
     debug_mode = True
 else:
     debug_mode = False
@@ -48,14 +48,12 @@ global_hup = {
 
 
 class FilterError(Exception):
-
-    """This exception is used to signal that a filter encountered some 
+    """This exception is used to signal that a filter encountered some
     problem with the incoming message."""
     pass
 
 
 class Fingerprint(object):
-
     """The fingerprint of a component.
     This class encompasses all the values the library uses to identify the
     component in the running system.
@@ -81,7 +79,6 @@ class Fingerprint(object):
 
 
 class Encoder(object):
-
     """The base message encoder.
     An encoder knows how to encode and decode messages
     to plain strings which can be delivered by AMQP.
@@ -90,7 +87,7 @@ class Encoder(object):
     content_type = ""
 
     @classmethod
-    def encode(self, data):
+    def encode(cls, data):
         """Encodes data to a plain string.
 
         :param data: a Python object
@@ -100,48 +97,42 @@ class Encoder(object):
         return data
 
     @classmethod
-    def decode(self, string):
+    def decode(cls, string):
         """Dencodes data from a plain string.
 
         :param string: a plain string previously encoded
-        :type data: string
-
         """
 
         return string
 
 
 class JsonEncoder(Encoder):
-
     """A simple JSON encoder and decoder"""
 
     content_type = "application/json"
 
     @classmethod
-    def encode(self, data):
+    def encode(cls, data):
         return json.dumps(data)
 
     @classmethod
-    def decode(self, string):
+    def decode(cls, string):
         return json.loads(string)
 
 
 class RejectMessage(ValueError):
-
     """This exception is used to signal that one of the filters
     rejected the message"""
     pass
 
 
 class AckAndRestart(ValueError):
-
     """This exception is used to signal that the message must be acked
     and the application restarted"""
     pass
 
 
 class Message(object):
-
     """This class is the base Postage message.
     Message type can be 'command', 'status' or 'result'. Command messages
     transport a command we want to send to a component, either a direct one or
@@ -160,24 +151,30 @@ class Message(object):
     boolean_value = True
 
     def __init__(self, *args, **kwds):
-        self.body = {}
-        self.body['type'] = self.type
-        self.body['name'] = self.name
-        self.body['category'] = self.category
-        self.body['version'] = '2'
-        self.body['fingerprint'] = {}
-        self.body['content'] = {}
+        self.body = {
+            'type': self.type,
+            'name': self.name,
+            'category': self.category,
+            'version': '2',
+            'fingerprint': {},
+            'content': {}
+        }
+
         if len(args) != 0:
             self.body['content']['args'] = args
         if len(kwds) != 0:
             self.body['content']['kwds'] = kwds
         self.body['_reserved'] = {}
 
-    def __unicode__(self):
-        return unicode(self.body)
+    if six.PY2:
+        def __unicode__(self):
+            return unicode(self.body)
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        if six.PY2:
+            return unicode(self.body).encode('utf-8')
+        else:
+            return str(self.body)
 
     def __eq__(self, msg):
         return self.body == msg.body
@@ -190,19 +187,22 @@ class Message(object):
 
 
 class MessageCommand(Message):
-
     """The base implementation of a command message.
     """
     type = 'command'
 
-    def __init__(self, command, parameters={}):
+    def __init__(self, command, parameters=None):
+        if parameters is not None:
+            _parameters = parameters
+        else:
+            _parameters = {}
+
         super(MessageCommand, self).__init__()
         self.body['name'] = str(command)
-        self.body['content']['parameters'] = parameters
+        self.body['content']['parameters'] = _parameters
 
 
 class RpcCommand(MessageCommand):
-
     """The base implementation of an RPC message.
     This is exactly the same as a standard cammand message. This is implemented
     in a custom class to allow us to tell apart which messages need an answer.
@@ -212,7 +212,6 @@ class RpcCommand(MessageCommand):
 
 
 class MessageStatus(Message):
-
     """Status of a component.
     A component which wants to send its status to another component
     can leverage this type of message. It adds to the content the
@@ -231,7 +230,6 @@ class MessageStatus(Message):
 
 
 class MessageResult(Message):
-
     """Result of an RPC call.
     This type of message adds the follwing keys to the message content: type
     (the type of result - success, error of exception), value (the Python value
@@ -272,29 +270,28 @@ class MessageResultException(MessageResult):
 
 
 class TimeoutError(Exception):
-
     """An exception used to notify a timeout error while
     consuming from a given queue"""
 
 
 class ExchangeType(type):
-
     """A metaclass to type exchanges.
     This allows us to declare exchanges just by setting class attributes.
     Exchanges can then be used without instancing the class.
     """
-    def __init__(cls, name, bases, dic):
-        super(ExchangeType, cls).__init__(name, bases, dic)
-        cls.parameters = {"exchange": cls.name,
-                          "exchange_type": cls.exchange_type,
-                          "passive": cls.passive,
-                          "durable": cls.durable,
-                          "auto_delete": cls.auto_delete
-                          }
+
+    def __init__(self, name, bases, dic):
+        super(ExchangeType, self).__init__(name, bases, dic)
+        self.parameters = {
+            "exchange": self.name,
+            "exchange_type": self.exchange_type,
+            "passive": self.passive,
+            "durable": self.durable,
+            "auto_delete": self.auto_delete
+        }
 
 
 class Exchange(six.with_metaclass(ExchangeType, object)):
-
     """A generic exchange.
     This objects helps the creation of an exchange and its use among
     different programs, encapsulating the parameters. Since exchanges can be
@@ -312,7 +309,6 @@ class Exchange(six.with_metaclass(ExchangeType, object)):
 
 
 class GenericProducer(object):
-
     """A generic class that represents a message producer.
     This class enables the user to implement build_message_*()
     and build_rpc_*() methods and automatically provides the respective
@@ -361,7 +357,12 @@ class GenericProducer(object):
     # Host, User, Password
     hup = global_hup
 
-    def __init__(self, fingerprint={}, hup=None, vhost=None):
+    def __init__(self, fingerprint=None, hup=None, vhost=None):
+        if fingerprint is not None:
+            _fingerprint = fingerprint
+        else:
+            _fingerprint = {}
+
         if hup is not None:
             self.hup = hup
         credentials = pika.PlainCredentials(self.hup['user'],
@@ -379,13 +380,13 @@ class GenericProducer(object):
         self.encoder = self.encoder_class()
         self.default_exchange = self.eks[0][0]
         self.fingerprint = Fingerprint().as_dict()
-        self.fingerprint.update(fingerprint)
+        self.fingerprint.update(_fingerprint)
 
         self.channel = self.conn_broker.channel()
         if debug_mode:
             print("Producer {0} declaring eks {1}".
                   format(self.__class__.__name__, self.eks))
-            print
+            print()
         for exc, key in self.eks:
             self.channel.exchange_declare(**exc.parameters)
 
@@ -443,9 +444,9 @@ class GenericProducer(object):
                       format(name=self.__class__.__name__,
                              exc=exchange,
                              key=key))
-                for _key, _value in message.body.iteritems():
+                for _key, _value in message.body.items():
                     print("    {0}: {1}".format(_key, _value))
-                print
+                print()
             self.channel.basic_publish(body=encoded_body,
                                        exchange=exchange.name,
                                        properties=msg_props,
@@ -474,9 +475,9 @@ class GenericProducer(object):
                           format(name=self.__class__.__name__,
                                  exc=exchange,
                                  key=key))
-                    for _key, _value in message.body.iteritems():
+                    for _key, _value in message.body.items():
                         print("    {0}: {1}".format(_key, _value))
-                    print
+                    print()
                 self.channel.basic_publish(body=encoded_body,
                                            exchange=exchange.name,
                                            properties=msg_props,
@@ -489,7 +490,7 @@ class GenericProducer(object):
                                                timeout=timeout)
                     return results[0]
             except TimeoutError as exc:
-                if _counter < self.max_retry:
+                if _counter < max_retry:
                     _counter = _counter + 1
                     continue
                 else:
@@ -604,16 +605,18 @@ class GenericProducer(object):
         self.channel.start_consuming()
         self.conn_broker.remove_timeout(tid)
 
-        if result_list == []:
+        if len(result_list) == 0:
             result_list.append(MessageResultError('\
                 An internal error occoured to RPC - result list was empty'))
         return result_list
 
     def serialize_text_file(self, filepath):
-        f = file(filepath, 'r')
-        result = {}
-        result['name'] = os.path.basename(filepath)
-        result['content'] = f.readlines()
+        with open(filepath, 'r') as f:
+            result = {
+                'name': os.path.basename(filepath),
+                'content': f.readlines()
+            }
+
         return result
 
 
@@ -630,7 +633,12 @@ class GenericConsumer(object):
     # 'flag2':False}}
     eqk = []
 
-    def __init__(self, eqk=[], hup=None, vhost=None):
+    def __init__(self, eqk=None, hup=None, vhost=None):
+        if eqk is not None:
+            _eqk = eqk
+        else:
+            _eqk = None
+
         if hup is not None:
             self.hup = hup
         credentials = pika.PlainCredentials(self.hup['user'],
@@ -647,8 +655,8 @@ class GenericConsumer(object):
         self.encoder = self.encoder_class()
         self.channel = self.conn_broker.channel()
 
-        if len(eqk) != 0:
-            self.eqk = eqk
+        if len(_eqk) != 0:
+            self.eqk = _eqk
 
         self.qk_list = []
 
@@ -729,7 +737,6 @@ class GenericConsumer(object):
 
 
 class MessageHandler(object):
-
     """This decorator takes two parameters: message_type and message_name.
     message_type is the type of message the handler can process
     (e.g. "command", "status") message_name is the actual message name
@@ -746,7 +753,6 @@ class MessageHandler(object):
 
 
 class RpcHandler(MessageHandler):
-
     """This decorator takes two parameters: message_type and message_name.
     message_type is the type of message the handler can process
     (e.g. "command", "status") message_name is the actual message name
@@ -757,13 +763,12 @@ class RpcHandler(MessageHandler):
     def __init__(self, message_type, message_name=None):
         self.handler_data = ("rpc", message_type, message_name, 'content')
 
-    # def __call__(self, func):
-    #     func._message_handler = self.handler_data
-    #     return func
+        # def __call__(self, func):
+        #     func._message_handler = self.handler_data
+        #     return func
 
 
 class MessageHandlerFullBody(MessageHandler):
-
     """This decorator behaves the same as MessageHandler but makes the
     decorated method receive the full message body instead the sole content.
     """
@@ -772,18 +777,17 @@ class MessageHandlerFullBody(MessageHandler):
         self.handler_data = ("message", handler_type, message_name, None)
 
 
-class Handler(object):
-    _message_handler = True
-
-    def __init__(self, processor, data, reply_func=None):
-        self.processor = processor
-        self.reply_func = reply_func
-        self.data = data
-        self.call()
+# class Handler(object):
+#     _message_handler = True
+#
+#     def __init__(self, processor, data, reply_func=None):
+#         self.processor = processor
+#         self.reply_func = reply_func
+#         self.data = data
+#         self.call()
 
 
 class MessageFilter(object):
-
     """This decorator takes as parameter a callable. The callable must accept
     a message as argument and is executed every time a message is processed
     by the decorated function.
@@ -820,7 +824,6 @@ class MessageFilter(object):
 
 
 class MessageHandlerType(type):
-
     """This metaclass is used in conjunction with the MessageHandler decorator.
     An object with this metaclass has an internal dictionary called
     _message_handlers that contains all methods which can process an incoming
@@ -828,27 +831,32 @@ class MessageHandlerType(type):
     the metaclass, looking for the attribute _message_handler attached by the
     MessageHandler decorator.
     """
-    def __init__(cls, name, bases, attrs):
-        try:
-            cls._message_handlers
-        except AttributeError:
-            cls._message_handlers = {}
 
-        for key, method in attrs.iteritems():
+    def __init__(self, name, bases, attrs):
+        if six.PY2:
+            super(MessageHandlerType, self).__init__(name, bases, attrs)
+        else:
+            super().__init__(name, bases, attrs)
+
+        try:
+            self._message_handlers
+        except AttributeError:
+            self._message_handlers = {}
+
+        for key, method in attrs.items():
             if hasattr(method, '_message_handler'):
-                message_category, message_type, message_name, body_key =\
+                message_category, message_type, message_name, body_key = \
                     method._message_handler
 
                 message_key = (message_category, message_type, message_name)
 
-                if message_key not in cls._message_handlers:
-                    cls._message_handlers[message_key] = []
+                if message_key not in self._message_handlers:
+                    self._message_handlers[message_key] = []
 
-                cls._message_handlers[message_key].append((method, body_key))
+                self._message_handlers[message_key].append((method, body_key))
 
 
 class MessageProcessor(six.with_metaclass(MessageHandlerType, microthreads.MicroThread)):
-
     """A MessageProcessor is a MicroThread with MessageHandlerType as
     metaclass. This means that it can be used as a microthred in a scheduler
     and its methods can be decorated with the MessageHandler decorator.
@@ -914,9 +922,9 @@ class MessageProcessor(six.with_metaclass(MessageHandlerType, microthreads.Micro
 
         if debug_mode:
             print("<-- {0}: _msg_consumer()".format(self.__class__.__name__))
-            for _key, _value in decoded_body.iteritems():
+            for _key, _value in decoded_body.items():
                 print("    {0}: {1}".format(_key, _value))
-            print
+            print()
         try:
             message_category = decoded_body['category']
             message_type = decoded_body['type']
@@ -944,9 +952,10 @@ class MessageProcessor(six.with_metaclass(MessageHandlerType, microthreads.Micro
                         if debug_mode:
                             print("Filter error in handler", callable_obj)
             elif message_category == 'rpc':
+                reply_func = functools.partial(
+                    self.consumer.rpc_reply, header)
+
                 try:
-                    reply_func = functools.partial(
-                        self.consumer.rpc_reply, header)
 
                     if message_type == 'command':
                         message_name = decoded_body['name']

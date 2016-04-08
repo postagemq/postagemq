@@ -1,3 +1,4 @@
+from __future__ import print_function
 from postagemq import microthreads
 from postagemq import messaging
 import echo_shared
@@ -6,7 +7,7 @@ import echo_shared
 class EchoReceiveProcessor(messaging.MessageProcessor):
     @messaging.MessageHandler('command', 'echo')
     def msg_echo(self, content):
-        print content['parameters']
+        print(content['parameters'])
 
 eqk = [(echo_shared.EchoExchange, [('echo-queue', 'echo-rk'), ])]
 
