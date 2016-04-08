@@ -16,13 +16,13 @@
       pip: requirements=/tmp/requirements_dev.txt virtualenv=~/venv3 virtualenv_python=python3
 
     - name: Install local postagemq into Python 2 virtualenv
-      pip: name='/vagrant' virtualenv=~/venv
+      pip: name='/vagrant' virtualenv=~/venv editable=True
 
     - name: Install package requirements into Python 2 virtualenv
       pip: requirements='/vagrant/requirements.txt' virtualenv=~/venv
 
     - name: Install local postagemq into Python 3 virtualenv
-      pip: name='/vagrant' virtualenv=~/venv3
+      pip: name='/vagrant' virtualenv=~/venv3 editable=True
 
     - name: Install package requirements into Python 3 virtualenv
       pip: requirements='/vagrant/requirements.txt' virtualenv=~/venv3
