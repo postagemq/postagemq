@@ -571,7 +571,7 @@ class GenericProducer(object):
         result_list = []
 
         def _callback(channel, method, header, body):
-            reply = self.encoder.decode(body)
+            reply = self.encoder.decode(body.decode('UTF-8'))
 
             try:
                 if reply['content']['type'] == 'success':
