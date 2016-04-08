@@ -12,15 +12,15 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder "../", "/vagrant"
 
   config.vm.define 'master' do |master|
-    master.vm.network "private_network", ip: "192.168.33.10"
+    master.vm.network :forwarded_port, guest: 22, host: 4444, id: 'ssh'
+    master.vm.network "private_network", ip: "192.168.44.10"
     master.vm.hostname = "master"
-    master.ssh.port = "2222"
   end
 
   (1..2).each do |i|
       config.vm.define "slave#{i}" do |slave|
-        slave.vm.network :forwarded_port, guest: 22, host: "227#{i}".to_i, id: 'ssh'
-        slave.vm.network "private_network", ip: "192.168.33.2#{i}"
+        slave.vm.network :forwarded_port, guest: 22, host: "447#{i}".to_i, id: 'ssh'
+        slave.vm.network "private_network", ip: "192.168.44.2#{i}"
         slave.vm.hostname = "slave#{i}"
       end
   end

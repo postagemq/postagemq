@@ -918,7 +918,7 @@ class MessageProcessor(six.with_metaclass(MessageHandlerType, microthreads.Micro
         return filtered_body
 
     def _msg_consumer(self, channel, method, header, body):
-        decoded_body = self.consumer.decode(body)
+        decoded_body = self.consumer.decode(body.decode('UTF-8'))
 
         if debug_mode:
             print("<-- {0}: _msg_consumer()".format(self.__class__.__name__))

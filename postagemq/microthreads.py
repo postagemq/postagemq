@@ -1,5 +1,7 @@
 # -*- coding: latin-1 -*-
 
+import six
+
 """A library to handle microthreads.
 
 .. moduleauthor:: Leonardo Giordani <giordani.leonardo@gmail.com>
@@ -66,7 +68,10 @@ class MicroScheduler(object):
         """Adds a MicroThread to the poll of active ones. This method calls main() and next() on the MicroThread,
         thus building the generator and executing the possible create()."""
         g = mthread.main()
-        g.next()
+        if six.PY2:
+            g.next()
+        else:
+            next(g)
         self.active_microthreads.append(g)
 
     def main(self):
@@ -95,7 +100,10 @@ class MicroScheduler(object):
                 #print process
                 #print "Now running process", process
                 try:
-                    thread.next()
+                    if six.PY2:
+                        thread.next()
+                    else:
+                        next(thread)
                     # Queue the program for the next cycle
                     self.scheduled_microthreads.append(thread)
                 except ExitScheduler:
