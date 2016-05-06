@@ -1,3 +1,5 @@
+-r test.txt
+
 bumpversion==0.5.3
 wheel==0.23.0
 watchdog==0.8.3
@@ -9,8 +11,10 @@ PyYAML==3.11
 
 # Ansible
 ansible==2.0.0.2
+
 ecdsa==0.13
 Jinja2==2.8
 MarkupSafe==0.23
 paramiko==1.16.0
 pycrypto==2.6.1
+
