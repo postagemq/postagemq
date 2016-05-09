@@ -1,11 +1,12 @@
 from __future__ import print_function
 from postagemq import microthreads
-from postagemq import messaging
+from postagemq import message_processor as mp
+from postagemq import handlers as hdl
 import echo_shared
 
 
-class EchoReceiveProcessor(messaging.MessageProcessor):
-    @messaging.MessageHandler('command', 'echo')
+class EchoReceiveProcessor(mp.MessageProcessor):
+    @hdl.MessageHandler('command', 'echo')
     def msg_echo(self, content):
         print(content['parameters'])
 

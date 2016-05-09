@@ -1,7 +1,7 @@
-from postagemq import messaging
+from postagemq import generic_producer as gp
 import echo_shared
 
-class EchoProducer(messaging.GenericProducer):
+class EchoProducer(gp.GenericProducer):
     eks = [(echo_shared.EchoExchange, 'echo-rk')]
 
 producer = EchoProducer()

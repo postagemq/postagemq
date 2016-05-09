@@ -1,6 +1,6 @@
-from postagemq import messaging
+from postagemq import exchange as xch
 
-class EchoExchange(messaging.Exchange):
+class EchoExchange(xch.Exchange):
     name = "echo-exchange"
     exchange_type = "direct"
     passive = False
