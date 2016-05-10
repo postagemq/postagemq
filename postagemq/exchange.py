@@ -1,5 +1,6 @@
 import six
 
+
 class ExchangeType(type):
     """A metaclass to type exchanges.
     This allows us to declare exchanges just by setting class attributes.

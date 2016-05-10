@@ -1,7 +1,11 @@
-from postagemq import messaging
+from postagemq.config import *
+from postagemq import exchange as xch
+from postagemq import message_processor as mp
+from postagemq import handlers as hdl
+from postagemq.messages import results as res
 
 
-class GenericApplicationExchange(messaging.Exchange):
+class GenericApplicationExchange(xch.Exchange):
     """The GenericApplication exchange, used to send normal messages."""
 
     name = "generic-application-exchange"
@@ -24,7 +28,7 @@ class LoggingProducerStub(object):
         return self.stub
 
 
-class GenericApplication(messaging.MessageProcessor):
+class GenericApplication(mp.MessageProcessor):
     # This is the standard exchange the application connects to
     exchange_class = GenericApplicationExchange
 
@@ -42,7 +46,7 @@ class GenericApplication(messaging.MessageProcessor):
         # The RabbitMQ virtual host this application is running on
         self.vhost = vhost
         if self.vhost is None:
-            self.vhost = messaging.global_vhost
+            self.vhost = global_vhost
 
         # The name of this application
         name = self.fingerprint['name']
@@ -148,11 +152,11 @@ class GenericApplication(messaging.MessageProcessor):
                 "{name}#{group}/rr".format(name=name, group=group)
             )
 
-    @messaging.RpcHandler('command', 'ping')
+    @hdl.RpcHandler('command', 'ping')
     def msg_ping(self, content, reply_func):
-        reply_func(messaging.MessageResult(self.fingerprint))
+        reply_func(res.MessageResult(self.fingerprint))
 
-    @messaging.MessageHandler('command', 'join_group')
+    @hdl.MessageHandler('command', 'join_group')
     def msg_join_group(self, content):
         group = content['parameters']['group_name']
         name = self.fingerprint['name']
@@ -179,7 +183,7 @@ class GenericApplication(messaging.MessageProcessor):
             # issue basic_consume() (for each queue)
             # and then start_consuming() (once): this means restarting.
 
-    @messaging.MessageHandler('command', 'leave_group')
+    @hdl.MessageHandler('command', 'leave_group')
     def msg_leave_group(self, content):
         group = content['parameters']['group_name']
         name = self.fingerprint['name']

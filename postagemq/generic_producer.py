@@ -5,8 +5,8 @@ import functools
 import pika
 
 from postagemq.config import *
-from postagemq import fingerprint as fp
 from postagemq.encoders import json_encoder as je
+from postagemq import fingerprint as fp
 from postagemq import exchange
 from postagemq.messages import message as msg, results as res, commands as cmd
 from postagemq.exceptions import TimeoutError
@@ -143,17 +143,17 @@ class GenericProducer(object):
         message.fingerprint(**self.fingerprint)
         encoded_body = self.encoder.encode(message.body)
 
-        for xch, key in eks:
+        for exchange, key in eks:
             if debug_mode:
                 print("--> {name}: basic_publish() to ({exc}, {key})".
                       format(name=self.__class__.__name__,
-                             exc=xch,
+                             exc=exchange,
                              key=key))
                 for _key, _value in message.body.items():
                     print("    {0}: {1}".format(_key, _value))
                 print()
             self.channel.basic_publish(body=encoded_body,
-                                       exchange=xch.name,
+                                       exchange=exchange.name,
                                        properties=msg_props,
                                        routing_key=key)
 

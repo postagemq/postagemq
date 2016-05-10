@@ -6,7 +6,6 @@ from postagemq.config import *
 from postagemq.encoders import json_encoder as je
 from postagemq.messages import results as res
 
-
 class GenericConsumer(object):
     encoder_class = je.JsonEncoder
     vhost = global_vhost
@@ -121,3 +120,5 @@ class GenericConsumer(object):
 
         self.channel.basic_publish(body=encoded_body, exchange="",
                                    routing_key=header.reply_to)
+
+
